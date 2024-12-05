@@ -6,7 +6,13 @@ def check_player_defeated(player_color, board):
     return True
 
 
-def move_is_valid(player_order, move, board):
+def move_is_valid(player_order: str, move: tuple[tuple[int, int], tuple[int, int]], board) -> bool:
+    """
+    :param player_order:
+    :param move: 2d tuple with form ((initialY,initialX),(futureY,futureX)
+    :param board:
+    :return: boolean describing if move is valid
+    """
     player_color = player_order[1]
     player_team = int(player_order[0])
     other_teams = [int(e) for e in player_order[::3]]
