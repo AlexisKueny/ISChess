@@ -11,6 +11,7 @@ from PyQt6 import QtCore
 #   Be careful with modules to import from the root (don't forget the Bots.)
 from Bots.ChessBotList import register_chess_bot
 import ChessRules
+import random
 
 
 #   Simply move the pawns forward and tries to capture as soon as possible
@@ -42,11 +43,11 @@ def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
 
     # Populating dictionary with pieces
     count = 0
-    for y in range(board.shape[0]):
-        for x in range(board.shape[1]):
-            print(str(board[y][x]))
-            if color in str(board[y][x]):
-                piece_moves[str(board[y][x])+str(count)] = [(y, x)]
+    for x in range(board.shape[0]):
+        for y in range(board.shape[1]):
+            #print(str(board[y][x]))
+            if color in str(board[x][y]):
+                piece_moves[str(board[x][y])+str(count)] = [(x, y)]
                 count += 1
     print(piece_moves)
 
@@ -67,8 +68,17 @@ def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
 
     print(piece_moves)
 
-    #find possible moves for each piece
-    return (0, 0), (0, 0)
+    # Filtrer pour exclure le premier élément de chaque liste
+    filtered_piece_moves = {key: moves[1:] for key, moves in piece_moves.items() if len(moves) > 1}
+
+    if filtered_piece_moves:
+        random_piece = random.choice(list(filtered_piece_moves.keys()))
+        random_move = random.choice(filtered_piece_moves[random_piece])
+        print(f"Selected move from {random_piece}: {random_move}")
+        return piece_moves[random_piece][0], random_move
+    else:
+        print("No valid moves available")
+        return (0, 0), (0, 0)
 
 
 #   Example how to register the function
