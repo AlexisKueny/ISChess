@@ -1,0 +1,69 @@
+Index: ISChess-master/ISChess-master/Bots/BaseChessBot.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#\r\n# Example function to be implemented for Single important function is next_best color: a single character str\r\n# indicating the color represented by this bot ('w' for white) board: a 2d matrix containing strings as a descriptors\r\n# of the board '' means empty location \"XC\" means a piece represented by X of the color C is present there budget:\r\n# time budget allowed for this turn, the function must return a pair (xs,ys) --> (xd,yd) to indicate a piece at xs,\r\n# ys moving to xd, yd\r\n#\r\n\r\nfrom PyQt6 import QtCore\r\n\r\n#   Be careful with modules to import from the root (don't forget the Bots.)\r\nfrom Bots.ChessBotList import register_chess_bot\r\nimport ChessRules\r\nimport random\r\n\r\n\r\n#   Simply move the pawns forward and tries to capture as soon as possible\r\ndef example_chess_bot(player_sequence: str, board, time_budget, **kwargs):\r\n    color = player_sequence[1]\r\n    for x in range(board.shape[0] - 1):\r\n        for y in range(board.shape[1]):\r\n            if board[x, y] != \"p\" + color:\r\n                continue\r\n            if y > 0 and board[x + 1, y - 1] != '' and board[x + 1, y - 1][-1] != color:\r\n                # Cap piece on right\r\n                return (x, y), (x + 1, y - 1)\r\n            if y < board.shape[1] - 1 and board[x + 1, y + 1] != '' and board[x + 1, y + 1][1] != color:\r\n                # Cap piece on left\r\n                return (x, y), (x + 1, y + 1)\r\n            elif board[x + 1, y] == '':\r\n                # Move chess piece on square forward\r\n                return (x, y), (x + 1, y)\r\n\r\n    return (0, 0), (0, 0)\r\n\r\n\r\ndef pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):\r\n    color = player_sequence[1]\r\n    print(\"color\", color)\r\n    piece_moves = {}\r\n    print(\"board dimensions\", board.shape)\r\n    print(board)\r\n\r\n    # Populating dictionary with pieces\r\n    count = 0\r\n    for x in range(board.shape[0]):\r\n        for y in range(board.shape[1]):\r\n            #print(str(board[y][x]))\r\n            if color in str(board[x][y]):\r\n                piece_moves[str(board[x][y])+str(count)] = [(x, y)]\r\n                count += 1\r\n    print(piece_moves)\r\n\r\n    # Matching each piece with possible moves\r\n\r\n    for piece in piece_moves:\r\n        for y in range(board.shape[0] - 1):\r\n            for x in range(board.shape[1]):\r\n                start = piece_moves[piece][0]\r\n                end = (y, x)\r\n                move = (start, end)\r\n                print(move)\r\n                try:\r\n                    if ChessRules.move_is_valid(player_sequence, move, board):\r\n                        piece_moves[piece].append(move[1])\r\n                except IndexError:\r\n                    continue\r\n\r\n    print(piece_moves)\r\n\r\n    # Filtrer pour exclure le premier élément de chaque liste\r\n    filtered_piece_moves = {key: moves[1:] for key, moves in piece_moves.items() if len(moves) > 1}\r\n\r\n    if filtered_piece_moves:\r\n        random_piece = random.choice(list(filtered_piece_moves.keys()))\r\n        random_move = random.choice(filtered_piece_moves[random_piece])\r\n        print(f\"Selected move from {random_piece}: {random_move}\")\r\n        return piece_moves[random_piece][0], random_move\r\n    else:\r\n        print(\"No valid moves available\")\r\n        return (0, 0), (0, 0)\r\n\r\n\r\n#   Example how to register the function\r\nregister_chess_bot(\"PawnMover\", pawn_mover_bot)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ISChess-master/ISChess-master/Bots/BaseChessBot.py b/ISChess-master/ISChess-master/Bots/BaseChessBot.py
+--- a/ISChess-master/ISChess-master/Bots/BaseChessBot.py	(revision abdbe44ccbc58be5c73de09c8742765d711c7dde)
++++ b/ISChess-master/ISChess-master/Bots/BaseChessBot.py	(date 1734005266945)
+@@ -10,6 +10,7 @@
+ 
+ #   Be careful with modules to import from the root (don't forget the Bots.)
+ from Bots.ChessBotList import register_chess_bot
++from queue import Queue
+ import ChessRules
+ import random
+ 
+@@ -41,6 +42,10 @@
+     print("board dimensions", board.shape)
+     print(board)
+ 
++    # Comment accéder à piece_move[1] par exemple ?
++    # Trouver le chemin le plus court pour qu'une pièce aille jusqu'à une certaine position BFS
++
++
+     # Populating dictionary with pieces
+     count = 0
+     for x in range(board.shape[0]):
+@@ -49,19 +54,20 @@
+             if color in str(board[x][y]):
+                 piece_moves[str(board[x][y])+str(count)] = [(x, y)]
+                 count += 1
+-    print(piece_moves)
++    #print(piece_moves)
+ 
+     # Matching each piece with possible moves
+ 
+     for piece in piece_moves:
+-        for y in range(board.shape[0] - 1):
+-            for x in range(board.shape[1]):
++        for x in range(board.shape[0]):
++            for y in range(board.shape[1]):
+                 start = piece_moves[piece][0]
+                 end = (y, x)
+                 move = (start, end)
+                 print(move)
+                 try:
+                     if ChessRules.move_is_valid(player_sequence, move, board):
++                        print("Move is valid " + str(len(piece_moves)))
+                         piece_moves[piece].append(move[1])
+                 except IndexError:
+                     continue
+@@ -80,6 +86,15 @@
+         print("No valid moves available")
+         return (0, 0), (0, 0)
+ 
++"""
++def bfs(self, n, edges, source, destination):
++    if n == 1:
++        return True
++    visited = [False] * n
++
++        return False
++"""
+ 
+ #   Example how to register the function
+ register_chess_bot("PawnMover", pawn_mover_bot)
++register_chess_bot("ExamplePawn", example_chess_bot)
