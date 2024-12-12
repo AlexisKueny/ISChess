@@ -35,25 +35,30 @@ def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
 
 def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
-    print("color", color)
-    piece_moves = {}
-    print("board dimensions", board.shape)
-    print(board)
+    piece_moves = findPossibleMoves(board, color, player_sequence)
+    print(piece_moves)
+    # Initialize the tree
 
-    # Populating dictionary with pieces
+    #find possible moves for each piece
+    return (0, 0), (0, 0)
+
+
+def findPossibleMoves(board, currentPlayer, player_sequence):
+    piece_moves = {}
+
     count = 0
     for y in range(board.shape[0]):
         for x in range(board.shape[1]):
             print(str(board[y][x]))
-            if color in str(board[y][x]):
-                piece_moves[str(board[y][x])+str(count)] = [(y, x)]
+            if currentPlayer in str(board[y][x]):
+                piece_moves[str(board[y][x]) + str(count)] = [(y, x)]
                 count += 1
     print(piece_moves)
 
     # Matching each piece with possible moves
 
     for piece in piece_moves:
-        for y in range(board.shape[0] - 1):
+        for y in range(board.shape[0]):
             for x in range(board.shape[1]):
                 start = piece_moves[piece][0]
                 end = (y, x)
@@ -66,9 +71,7 @@ def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
                     continue
 
     print(piece_moves)
-
-    #find possible moves for each piece
-    return (0, 0), (0, 0)
+    return piece_moves
 
 
 #   Example how to register the function
