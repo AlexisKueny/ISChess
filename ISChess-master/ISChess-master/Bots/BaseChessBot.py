@@ -5,7 +5,7 @@
 # time budget allowed for this turn, the function must return a pair (xs,ys) --> (xd,yd) to indicate a piece at xs,
 # ys moving to xd, yd
 #
-
+import numpy as np
 from PyQt6 import QtCore
 
 #   Be careful with modules to import from the root (don't forget the Bots.)
@@ -47,6 +47,15 @@ def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
     piece_moves = findPossibleMoves(board, color, player_sequence)
     print(piece_moves)
     print(countBoardValue(board, color))
+    displayBoard(board)
+    """
+    Trouver un moyen d'implémenter cela 
+    board2 = np.copy(board)
+    board2[0][1] = ""
+    board2[2][0] = "nw"
+    displayBoard(board2)
+    print(countBoardValue(board2, color))
+    """
     # Initialize the tree
 
     #find possible moves for each piece
@@ -92,6 +101,17 @@ def countBoardValue(board, color):
                     score_counter += global_value_of_pawn[str(board[x,y])[0]]
 
     return score_counter
+
+def displayBoard(board):
+
+    for x in range(board.shape[0]):
+        for y in range(board.shape[1]):
+            if board[x,y]:
+                print (board[x,y] + " ", end="")
+            else:
+                print(" x ", end="")
+        print("")
+
 
 #   Example how to register the function
 register_chess_bot("PawnMover", pawn_mover_bot)
