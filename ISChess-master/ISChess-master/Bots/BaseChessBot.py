@@ -12,6 +12,15 @@ from PyQt6 import QtCore
 from Bots.ChessBotList import register_chess_bot
 import ChessRules
 
+global_value_of_pawn = {
+    "p": 10,
+    "b": 30,
+    "n": 30,
+    "r": 50,
+    "q": 200,
+    "k": 500
+}
+
 
 #   Simply move the pawns forward and tries to capture as soon as possible
 def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
@@ -37,6 +46,7 @@ def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
     piece_moves = findPossibleMoves(board, color, player_sequence)
     print(piece_moves)
+    print(countBoardValue(board, color))
     # Initialize the tree
 
     #find possible moves for each piece
@@ -53,7 +63,6 @@ def findPossibleMoves(board, currentPlayer, player_sequence):
             if currentPlayer in str(board[y][x]):
                 piece_moves[str(board[y][x]) + str(count)] = [(y, x)]
                 count += 1
-    print(piece_moves)
 
     # Matching each piece with possible moves
 
@@ -70,9 +79,19 @@ def findPossibleMoves(board, currentPlayer, player_sequence):
                 except IndexError:
                     continue
 
-    print(piece_moves)
     return piece_moves
 
+def countBoardValue(board, color):
+    score_counter = 0
+
+    for x in range(board.shape[0]):
+        for y in range(board.shape[1]):
+            #Affiche les pièces si la chaîne n'est pas vide
+            if board[x,y]:
+                if board[x,y][1] == color:
+                    score_counter += global_value_of_pawn[str(board[x,y])[0]]
+
+    return score_counter
 
 #   Example how to register the function
 register_chess_bot("PawnMover", pawn_mover_bot)
