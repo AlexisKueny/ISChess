@@ -32,15 +32,10 @@ def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
 
     return (0, 0), (0, 0)
 
-
-def pawn_mover_bot(player_sequence: str, board, time_budget, **kwargs):
+def test_bot(player_sequence,board,time_budget,**kwargs):
     color = player_sequence[1]
-    piece_moves = findPossibleMoves(board, color, player_sequence)
-    print(piece_moves)
-    # Initialize the tree
-
-    #find possible moves for each piece
-    return (0, 0), (0, 0)
+    possMoves = []
+    for x in range()
 
 
 def findPossibleMoves(board, currentPlayer, player_sequence):
@@ -75,4 +70,4 @@ def findPossibleMoves(board, currentPlayer, player_sequence):
 
 
 #   Example how to register the function
-register_chess_bot("PawnMover", pawn_mover_bot)
+register_chess_bot("PawnMover", example_chess_bot)
