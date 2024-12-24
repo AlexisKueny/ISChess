@@ -26,3 +26,36 @@ def evaluate_board(board):
                 score += piece_value
 
     return score
+
+def gameOver(board)->bool:
+    for x in range(board.shape[0] - 1):
+        for y in range(board.shape[1]):
+            if board[x,y] == "kw" or board[x,y] == "kb":
+                return False
+    return True
+
+def greedy_move(board,color,sequence):
+    best_move = None
+    best_value = -float('inf') if board.turn == chess.WHITE else float('inf')
+
+    for move in findLegalMoves(board,color,sequence):
+        # Test move
+        start_x = move[0][0]
+        start_y = move[0][1]
+        move_x = move[1][0]
+        move_y = move[1][1]
+        board[move_x][move_y] = board[start_x][start_y]
+        board[start_x][start_y] = "--"
+        eval = evaluate_board(board)
+
+        # Evaluate move
+        if color = "w":
+            if eval > best_value:
+                best_value = eval
+                best_move = (move_x,move_y)
+        else:
+            if move_value < best_value:
+                best_value = move_value
+                best_move = move
+
+    return best_move

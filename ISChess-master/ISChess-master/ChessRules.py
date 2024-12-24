@@ -64,6 +64,7 @@ def move_is_valid(player_order, move, board):
 
     start, end = move
     #   Check boundary condition
+
     if start[0] < 0 or start[0] >= board.shape[0] or \
             start[1] < 0 or start[1] >= board.shape[1]:
         return False

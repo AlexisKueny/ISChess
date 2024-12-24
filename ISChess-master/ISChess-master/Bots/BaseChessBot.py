@@ -11,11 +11,14 @@ from PyQt6 import QtCore
 #   Be careful with modules to import from the root (don't forget the Bots.)
 from Bots.ChessBotList import register_chess_bot
 import ChessRules
+import shutil
 
 
 #   Simply move the pawns forward and tries to capture as soon as possible
 def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
+    print(findLegalMoves(board, color, player_sequence))
+    print(evaluate_board(board))
     for x in range(board.shape[0] - 1):
         for y in range(board.shape[1]):
             if board[x, y] != "p" + color:
@@ -32,23 +35,48 @@ def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
 
     return (0, 0), (0, 0)
 
-def test_bot(player_sequence,board,time_budget,**kwargs):
+
+def greedy_bot(player_sequence: str, board, time_budget, **kwargs):
+    print("Greedy bot says hello")
     color = player_sequence[1]
-    possMoves = []
-    for x in range()
+    best_move = None
+    best_value = -float('inf') if color == 'w' else float('inf')
+
+    for move in findLegalMoves(board, color, player_sequence):
+        print("Scanning moves")
+        # Test move
+        start_x = move[0][0]
+        start_y = move[0][1]
+        move_x = move[1][0]
+        move_y = move[1][1]
+        board[move_x][move_y] = board[start_x][start_y]
+        board[start_x][start_y] = "--"
+        print("Bug?")
+        move_eval = evaluate_board(board)
+        print("No bug")
+
+        # Evaluate move
+        if color == "w":
+            if move_eval > best_value:
+                best_value = move_eval
+                best_move = (move_x, move_y)
+        else:
+            if move_eval < best_value:
+                best_value = move_eval
+                best_move = move
+
+    return best_move
 
 
-def findPossibleMoves(board, currentPlayer, player_sequence):
+def findLegalMoves(board, currentPlayer, player_sequence):
     piece_moves = {}
 
     count = 0
     for y in range(board.shape[0]):
         for x in range(board.shape[1]):
-            print(str(board[y][x]))
             if currentPlayer in str(board[y][x]):
                 piece_moves[str(board[y][x]) + str(count)] = [(y, x)]
                 count += 1
-    print(piece_moves)
 
     # Matching each piece with possible moves
 
@@ -58,16 +86,57 @@ def findPossibleMoves(board, currentPlayer, player_sequence):
                 start = piece_moves[piece][0]
                 end = (y, x)
                 move = (start, end)
-                print(move)
                 try:
                     if ChessRules.move_is_valid(player_sequence, move, board):
                         piece_moves[piece].append(move[1])
                 except IndexError:
                     continue
 
-    print(piece_moves)
-    return piece_moves
+    moves = []
+
+    for m in piece_moves.values():
+        for j in range(1, len(m)):
+            moves.append((m[0], m[j]))
+
+    print("Hello from findLegalMoves")
+    print(moves)
+
+    return moves
 
 
-#   Example how to register the function
-register_chess_bot("PawnMover", example_chess_bot)
+def evaluate_board(board):
+    """ Function to evaluate score based on all pieces on the board
+    """
+    global piece
+    piece_values = {
+        "p": 1,
+        "n": 3,
+        "b": 3,
+        "r": 5,
+        "q": 9,
+        "k": 1000,
+        "-": 0
+    }
+
+    # Evaluation score
+    score = 0
+
+    # Iterate over all the pieces on the board and sum the values
+    for x in range(board.shape[0]):
+        for y in range(board.shape[1]):
+            piece = board[x, y]
+            try:
+                piece_value = piece_values[piece[0]]
+                print(piece_value)
+            except IndexError:
+                continue
+            if piece[1] == 'b':
+                score -= piece_value
+            else:
+                score += piece_value
+
+    return score
+
+
+#  Example how to register the function
+register_chess_bot("Greedy", example_chess_bot)
