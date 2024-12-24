@@ -39,7 +39,7 @@ def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
 def greedy_bot(player_sequence: str, board, time_budget, **kwargs):
     print("Greedy bot says hello")
     color = player_sequence[1]
-    best_move = None
+    best_move = (0, 0), (0, 0)
     best_value = -float('inf') if color == 'w' else float('inf')
 
     for move in findLegalMoves(board, color, player_sequence):
@@ -49,21 +49,26 @@ def greedy_bot(player_sequence: str, board, time_budget, **kwargs):
         start_y = move[0][1]
         move_x = move[1][0]
         move_y = move[1][1]
+        print(f"Trying move from ({start_x},{start_y}) to ({move_x},{move_y})")
+
         board[move_x][move_y] = board[start_x][start_y]
         board[start_x][start_y] = "--"
-        print("Bug?")
+        print("Evaluating move")
         move_eval = evaluate_board(board)
-        print("No bug")
+        print("Eval completed")
 
         # Evaluate move
         if color == "w":
             if move_eval > best_value:
+                print("Better move for white found")
                 best_value = move_eval
-                best_move = (move_x, move_y)
+                best_move = (start_x,start_y),(move_x, move_y)
+                print(best_move)
         else:
             if move_eval < best_value:
+                print("Better move for black found")
                 best_value = move_eval
-                best_move = move
+                best_move = (start_x,start_y),(move_x,move_y)
 
     return best_move
 
@@ -139,4 +144,4 @@ def evaluate_board(board):
 
 
 #  Example how to register the function
-register_chess_bot("Greedy", example_chess_bot)
+register_chess_bot("Greedy", greedy_bot)
