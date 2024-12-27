@@ -5,16 +5,21 @@
 # time budget allowed for this turn, the function must return a pair (xs,ys) --> (xd,yd) to indicate a piece at xs,
 # ys moving to xd, yd
 #
+from typing import Tuple
 
 from PyQt6 import QtCore
 
-#   Be careful with modules to import from the root (don't forget the Bots.)
+# ----------------
+# Setup
+# ----------------
 from Bots.ChessBotList import register_chess_bot
 import ChessRules
-import shutil
+import copy
 
 
-#   Simply move the pawns forward and tries to capture as soon as possible
+# ----------------
+# Bot functions
+# ----------------
 def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
     print(findLegalMoves(board, color, player_sequence))
@@ -36,13 +41,17 @@ def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
     return (0, 0), (0, 0)
 
 
-def greedy_bot(player_sequence: str, board, time_budget, **kwargs):
-    print("Greedy bot says hello")
+def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
+    print("Stupid bot says hello")
     color = player_sequence[1]
     best_move = (0, 0), (0, 0)
     best_value = -float('inf') if color == 'w' else float('inf')
+    reset_val = copy.deepcopy(board)
+    print("reset_val", reset_val)
 
     for move in findLegalMoves(board, color, player_sequence):
+        print("original:",reset_val)
+        board = copy.deepcopy(reset_val)
         print("Scanning moves")
         # Test move
         start_x = move[0][0]
@@ -50,9 +59,9 @@ def greedy_bot(player_sequence: str, board, time_budget, **kwargs):
         move_x = move[1][0]
         move_y = move[1][1]
         print(f"Trying move from ({start_x},{start_y}) to ({move_x},{move_y})")
-
         board[move_x][move_y] = board[start_x][start_y]
-        board[start_x][start_y] = "--"
+        board[start_x][start_y] = ""
+        print("Modified",board)
         print("Evaluating move")
         move_eval = evaluate_board(board)
         print("Eval completed")
@@ -62,18 +71,33 @@ def greedy_bot(player_sequence: str, board, time_budget, **kwargs):
             if move_eval > best_value:
                 print("Better move for white found")
                 best_value = move_eval
-                best_move = (start_x,start_y),(move_x, move_y)
+                best_move = (start_x, start_y), (move_x, move_y)
                 print(best_move)
         else:
             if move_eval < best_value:
                 print("Better move for black found")
                 best_value = move_eval
-                best_move = (start_x,start_y),(move_x,move_y)
+                best_move = (start_x, start_y), (move_x, move_y)
 
     return best_move
 
 
+def improved_bot(player_sequence, board, time_budget, **kwargs):
+    color = player_sequence[1]
+    minimax(board, 3, player_sequence, color)
+
+
+# ----------------
+# Helper functions
+# ---------------
 def findLegalMoves(board, currentPlayer, player_sequence):
+    """
+    Finds possible legal moves for each piece in the board
+    :param board: Chess board
+    :param currentPlayer: White/ black player
+    :param player_sequence:  seq string
+    :return:
+    """
     piece_moves = {}
 
     count = 0
@@ -110,7 +134,8 @@ def findLegalMoves(board, currentPlayer, player_sequence):
 
 
 def evaluate_board(board):
-    """ Function to evaluate score based on all pieces on the board
+    """
+    Function to evaluate score based on all pieces on the board
     """
     global piece
     piece_values = {
@@ -132,7 +157,6 @@ def evaluate_board(board):
             piece = board[x, y]
             try:
                 piece_value = piece_values[piece[0]]
-                print(piece_value)
             except IndexError:
                 continue
             if piece[1] == 'b':
@@ -143,5 +167,29 @@ def evaluate_board(board):
     return score
 
 
-#  Example how to register the function
-register_chess_bot("Greedy", greedy_bot)
+def minimax(board, depth, player_sequence, color) -> tuple[int, tuple[int, int], tuple[int, int]]:
+    if depth == 0:
+        return evaluate_board(board), (0, 0), (0, 0)
+
+    if color == 'w':
+        maxEval = -float('inf')
+
+        for move in findLegalMoves(board, color, player_sequence):
+            print("Scanning moves")
+            # Test move
+            start_x = move[0][0]
+            start_y = move[0][1]
+            move_x = move[1][0]
+            move_y = move[1][1]
+            print(f"Trying move from ({start_x},{start_y}) to ({move_x},{move_y})")
+            board[move_x][move_y] = board[start_x][start_y]
+            board[start_x][start_y] = "--"
+            print("Evaluating move")
+            move_eval = evaluate_board(board)
+            print("Eval completed")
+
+
+# -------------------
+# Bot registration
+# -------------------
+register_chess_bot("Greedy", stupid_bot)
