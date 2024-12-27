@@ -81,12 +81,6 @@ def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
 
     return best_move
 
-
-def improved_bot(player_sequence, board, time_budget, **kwargs):
-    color = player_sequence[1]
-    minimax(board, 3, player_sequence, color)
-
-
 # ----------------
 # Helper functions
 # ---------------
@@ -167,26 +161,6 @@ def evaluate_board(board):
     return score
 
 
-def minimax(board, depth, player_sequence, color) -> tuple[int, tuple[int, int], tuple[int, int]]:
-    if depth == 0:
-        return evaluate_board(board), (0, 0), (0, 0)
-
-    if color == 'w':
-        maxEval = -float('inf')
-
-        for move in findLegalMoves(board, color, player_sequence):
-            print("Scanning moves")
-            # Test move
-            start_x = move[0][0]
-            start_y = move[0][1]
-            move_x = move[1][0]
-            move_y = move[1][1]
-            print(f"Trying move from ({start_x},{start_y}) to ({move_x},{move_y})")
-            board[move_x][move_y] = board[start_x][start_y]
-            board[start_x][start_y] = "--"
-            print("Evaluating move")
-            move_eval = evaluate_board(board)
-            print("Eval completed")
 
 
 # -------------------
