@@ -88,7 +88,7 @@ def minimax_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
     best_move = None
     best_value = -float('inf') if color == 'w' else float('inf')
-    depth = 3  # Set the depth of the Minimax algorithm
+    depth = 2  # Set the depth of the Minimax algorithm
 
     legal_moves = findLegalMoves(board, color, player_sequence)
     print(legal_moves)
@@ -96,7 +96,7 @@ def minimax_bot(player_sequence: str, board, time_budget, **kwargs):
     for move in legal_moves:
         board_copy = copy.deepcopy(board)
         make_move(board_copy, move)
-        eval = minimax(board_copy, depth - 1, False, player_sequence)
+        eval = minimax(board_copy, depth - 1, color, player_sequence)
 
         if color == "w" and eval > best_value:
             best_value = eval
@@ -198,26 +198,25 @@ def minimax(board, depth, maximizing_player, player_sequence):
     if depth == 0 or is_game_over(board):
         return evaluate_board(board)
 
-    color = player_sequence[1] if maximizing_player else ('b' if player_sequence[1] == 'w' else 'w')
-    legal_moves = findLegalMoves(board, color, player_sequence)
+    legal_moves = findLegalMoves(board, maximizing_player, player_sequence)
 
     if not legal_moves:
         return evaluate_board(board)
 
-    if maximizing_player:
+    if maximizing_player == "w":
         max_eval = -float('inf')
         for move in legal_moves:
             board_copy = copy.deepcopy(board)
             make_move(board_copy, move)
-            eval = minimax(board_copy, depth - 1, False, player_sequence)
+            eval = minimax(board_copy, depth - 1, "b", player_sequence)
             max_eval = max(max_eval, eval)
         return max_eval
-    else:
+    elif maximizing_player == 'b':
         min_eval = float('inf')
         for move in legal_moves:
             board_copy = copy.deepcopy(board)
             make_move(board_copy, move)
-            eval = minimax(board_copy, depth - 1, True, player_sequence)
+            eval = minimax(board_copy, depth - 1, "w", player_sequence)
             min_eval = min(min_eval, eval)
         return min_eval
 

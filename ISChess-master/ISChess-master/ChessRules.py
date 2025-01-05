@@ -87,10 +87,8 @@ def move_is_valid(player_order, move, board):
         if end[1] == start[1]:
             return is_free(end)
         else:
-            #   Capture ?
-            print(team_at(end), "!=", player_team, "==", team_at(end) != player_team)
-            print(abs(end[1] - start[1]) == 1 and (not is_free(end)) and int(team_at(end)) != player_team)
             return abs(end[1] - start[1]) == 1 and (not is_free(end)) and int(team_at(end)) != player_team
+
     elif piece == 'n':
         dx = abs(end[0] - start[0])
         dy = abs(end[1] - start[1])
