@@ -163,8 +163,7 @@ def evaluate_board(board):
         "b": 3,
         "r": 5,
         "q": 9,
-        "k": 1000,
-        "-": 0
+        "k": 10000,
     }
 
     # Evaluation score
@@ -211,6 +210,7 @@ def minimax(board, depth, maximizing_player, player_sequence):
             eval = minimax(board_copy, depth - 1, "b", player_sequence)
             max_eval = max(max_eval, eval)
         return max_eval
+
     elif maximizing_player == 'b':
         min_eval = float('inf')
         for move in legal_moves:
