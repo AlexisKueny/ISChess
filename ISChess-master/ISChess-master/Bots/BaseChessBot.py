@@ -15,6 +15,7 @@ from PyQt6 import QtCore
 from Bots.ChessBotList import register_chess_bot
 import ChessRules
 import copy
+import random
 
 
 # ----------------
@@ -50,7 +51,7 @@ def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
     print("reset_val", reset_val)
 
     for move in findLegalMoves(board, color, player_sequence):
-        print("original:",reset_val)
+        print("original:", reset_val)
         board = copy.deepcopy(reset_val)
         print("Scanning moves")
         # Test move
@@ -61,7 +62,7 @@ def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
         print(f"Trying move from ({start_x},{start_y}) to ({move_x},{move_y})")
         board[move_x][move_y] = board[start_x][start_y]
         board[start_x][start_y] = ""
-        print("Modified",board)
+        print("Modified", board)
         print("Evaluating move")
         move_eval = evaluate_board(board)
         print("Eval completed")
@@ -80,6 +81,15 @@ def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
                 best_move = (start_x, start_y), (move_x, move_y)
 
     return best_move
+
+
+def random_bot(player_sequence: str, board, time_budget, **kwargs):
+    print("Random bot says hello")
+    color = player_sequence[1]
+    moves = findLegalMoves(board,color,player_sequence)
+    i = random.randrange(0,len(moves) - 1)
+    return moves[i]
+
 
 # ----------------
 # Helper functions
@@ -161,9 +171,8 @@ def evaluate_board(board):
     return score
 
 
-
-
 # -------------------
 # Bot registration
 # -------------------
 register_chess_bot("Greedy", stupid_bot)
+register_chess_bot("Random",random_bot)
