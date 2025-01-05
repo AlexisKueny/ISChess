@@ -23,8 +23,6 @@ import random
 # ----------------
 def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
-    print(findLegalMoves(board, color, player_sequence))
-    print(evaluate_board(board))
     for x in range(board.shape[0] - 1):
         for y in range(board.shape[1]):
             if board[x, y] != "p" + color:
@@ -43,40 +41,29 @@ def example_chess_bot(player_sequence: str, board, time_budget, **kwargs):
 
 
 def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
-    print("Stupid bot says hello")
     color = player_sequence[1]
     best_move = (0, 0), (0, 0)
     best_value = -float('inf') if color == 'w' else float('inf')
     reset_val = copy.deepcopy(board)
-    print("reset_val", reset_val)
 
     for move in findLegalMoves(board, color, player_sequence):
-        print("original:", reset_val)
         board = copy.deepcopy(reset_val)
-        print("Scanning moves")
         # Test move
         start_x = move[0][0]
         start_y = move[0][1]
         move_x = move[1][0]
         move_y = move[1][1]
-        print(f"Trying move from ({start_x},{start_y}) to ({move_x},{move_y})")
         board[move_x][move_y] = board[start_x][start_y]
         board[start_x][start_y] = ""
-        print("Modified", board)
-        print("Evaluating move")
         move_eval = evaluate_board(board)
-        print("Eval completed")
 
         # Evaluate move
         if color == "w":
             if move_eval > best_value:
-                print("Better move for white found")
                 best_value = move_eval
                 best_move = (start_x, start_y), (move_x, move_y)
-                print(best_move)
         else:
             if move_eval < best_value:
-                print("Better move for black found")
                 best_value = move_eval
                 best_move = (start_x, start_y), (move_x, move_y)
 
@@ -84,11 +71,42 @@ def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
 
 
 def random_bot(player_sequence: str, board, time_budget, **kwargs):
-    print("Random bot says hello")
     color = player_sequence[1]
-    moves = findLegalMoves(board,color,player_sequence)
-    i = random.randrange(0,len(moves) - 1)
+    moves = findLegalMoves(board, color, player_sequence)
+    i = random.randrange(0, len(moves) - 1)
     return moves[i]
+
+
+def minimax_bot(player_sequence: str, board, time_budget, **kwargs):
+    """
+    Minimax bot that uses the Minimax algorithm to choose the best move.
+    :param player_sequence: Sequence string
+    :param board: Chess board
+    :param time_budget: Time budget allowed for this turn
+    :return: The best move
+    """
+    color = player_sequence[1]
+    best_move = None
+    best_value = -float('inf') if color == 'w' else float('inf')
+    depth = 3  # Set the depth of the Minimax algorithm
+
+    legal_moves = findLegalMoves(board, color, player_sequence)
+    print(legal_moves)
+
+    for move in legal_moves:
+        board_copy = copy.deepcopy(board)
+        make_move(board_copy, move)
+        eval = minimax(board_copy, depth - 1, False, player_sequence)
+
+        if color == "w" and eval > best_value:
+            best_value = eval
+            best_move = move
+        elif color == "b" and eval < best_value:
+            best_value = eval
+            best_move = move
+
+    # Ensure we do not return (0, 0), (0, 0) as a move
+    return best_move if best_move else legal_moves[0]
 
 
 # ----------------
@@ -131,9 +149,6 @@ def findLegalMoves(board, currentPlayer, player_sequence):
         for j in range(1, len(m)):
             moves.append((m[0], m[j]))
 
-    print("Hello from findLegalMoves")
-    print(moves)
-
     return moves
 
 
@@ -171,8 +186,77 @@ def evaluate_board(board):
     return score
 
 
+def minimax(board, depth, maximizing_player, player_sequence):
+    """
+    Minimax algorithm to choose the best move.
+    :param board: Chess board
+    :param depth: Depth of the search tree
+    :param maximizing_player: True if the current turn is the maximizing player's turn
+    :param player_sequence: Sequence string
+    :return: Evaluation score of the board
+    """
+    if depth == 0 or is_game_over(board):
+        return evaluate_board(board)
+
+    color = player_sequence[1] if maximizing_player else ('b' if player_sequence[1] == 'w' else 'w')
+    legal_moves = findLegalMoves(board, color, player_sequence)
+
+    if not legal_moves:
+        return evaluate_board(board)
+
+    if maximizing_player:
+        max_eval = -float('inf')
+        for move in legal_moves:
+            board_copy = copy.deepcopy(board)
+            make_move(board_copy, move)
+            eval = minimax(board_copy, depth - 1, False, player_sequence)
+            max_eval = max(max_eval, eval)
+        return max_eval
+    else:
+        min_eval = float('inf')
+        for move in legal_moves:
+            board_copy = copy.deepcopy(board)
+            make_move(board_copy, move)
+            eval = minimax(board_copy, depth - 1, True, player_sequence)
+            min_eval = min(min_eval, eval)
+        return min_eval
+
+
+def make_move(board, move):
+    """
+    Make a move on the board.
+    :param board: Chess board
+    :param move: A tuple ((start_x, start_y), (end_x, end_y))
+    """
+    start_x, start_y = move[0]
+    end_x, end_y = move[1]
+    board[end_x][end_y] = board[start_x][start_y]
+    board[start_x][start_y] = ""
+
+
+def is_game_over(board):
+    """
+    Checks if the game is over by looking for checkmate, stalemate, or other conditions.
+    :param board: Chess board
+    :return: True if the game is over, False otherwise
+    """
+    # Checkmate, stalemate, or other conditions can be implemented based on your specific game rules
+    # For simplicity, let's assume the game is over if a king is missing
+    kings = {'w': False, 'b': False}
+    for x in range(board.shape[0]):
+        for y in range(board.shape[1]):
+            if board[x, y] == 'kw':
+                kings['w'] = True
+            elif board[x, y] == 'kb':
+                kings['b'] = True
+
+    # If either king is missing, the game is over
+    return not kings['w'] or not kings['b']
+
+
 # -------------------
 # Bot registration
 # -------------------
-register_chess_bot("Greedy", stupid_bot)
-register_chess_bot("Random",random_bot)
+
+register_chess_bot("Minimax", minimax_bot)
+register_chess_bot("Random", random_bot)
