@@ -70,14 +70,14 @@ def stupid_bot(player_sequence: str, board, time_budget, **kwargs):
     return best_move
 
 
-def random_bot(player_sequence: str, board, time_budget, **kwargs):
+def ADRK_random_bot(player_sequence: str, board, time_budget, **kwargs):
     color = player_sequence[1]
     moves = findLegalMoves(board, color, player_sequence)
     i = random.randrange(0, len(moves) - 1)
     return moves[i]
 
 
-def minimax_bot(player_sequence: str, board, time_budget, **kwargs):
+def ADRK_bot(player_sequence: str, board, time_budget, **kwargs):
     """
     Minimax bot that uses the Minimax algorithm to choose the best move.
     :param player_sequence: Sequence string
@@ -257,5 +257,5 @@ def is_game_over(board):
 # Bot registration
 # -------------------
 
-register_chess_bot("Minimax", minimax_bot)
-register_chess_bot("Random", random_bot)
+register_chess_bot("ADRK", ADRK_bot)
+register_chess_bot("ADRK_Random", ADRK_random_bot)
