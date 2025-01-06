@@ -12,8 +12,8 @@ from PyQt6 import QtCore
 # ----------------
 # Setup
 # ----------------
-from Bots.ChessBotList import register_chess_bot
-import ChessRules
+from Bots.ADRKChessBotList import register_chess_bot
+import Bots.ADRKChessRules
 import copy
 import random
 
@@ -138,7 +138,7 @@ def findLegalMoves(board, currentPlayer, player_sequence):
                 end = (y, x)
                 move = (start, end)
                 try:
-                    if ChessRules.move_is_valid(player_sequence, move, board):
+                    if Bots.ADRKChessRules.move_is_valid(player_sequence, move, board):
                         piece_moves[piece].append(move[1])
                 except IndexError:
                     continue
